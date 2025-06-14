@@ -44,7 +44,7 @@ def delete_movie(title):
     """Delete a movie from the database."""
     with engine.connect() as connection:
         try:
-            query = """DELETE FROM movies 
+            query = """DELETE FROM movies
                         WHERE title = :title"""
             connection.execute(text(query),
                                {"title": title})
@@ -57,7 +57,7 @@ def update_movie(title, rating):
     """Update a movie's rating in the database."""
     with engine.connect() as connection:
         try:
-            query = """UPDATE movies 
+            query = """UPDATE movies
             SET 
                 rating = :rating
             WHERE movies.title = :title"""
@@ -67,4 +67,3 @@ def update_movie(title, rating):
             print(f"Movie '{title}' updated successfully.")
         except Exception as e:
             print(f"Error: {e}")
-

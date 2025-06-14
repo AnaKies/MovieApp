@@ -1,10 +1,9 @@
 from datetime import datetime
-import movie_storage_sql as storage
 import random
 import colorama
 import matplotlib.pyplot as plt
 from rapidfuzz import fuzz
-import movie_storage
+import movie_storage_sql as storage
 
 
 SIMILARITY_THRESHOLD_PERCENTAGE = 50
@@ -32,6 +31,9 @@ def filter_movies():
     """
     Prints the movies from the year range and above minimum rating.
     """
+    minimum_rating = ""
+    start_year = ""
+    end_year = ""
     try:
         minimum_rating = input("Enter minimum rating (leave blank for no minimum rating): ")
         if minimum_rating != "":
@@ -141,14 +143,14 @@ def check_movie_title_is_valid(movie_title, movie_should_exist):
     """
     if movie_title == "":
         raise ValueError(f"{colorama.Fore.RED}Empty string for the movie title are not allowed.")
-        return
 
     movies_list = storage.list_movies()
-    movie_is_found, index = find_key_in_movie(movies_list, "title", movie_title)
+    test_type = type(movies_list)
+    movie_is_found = find_key_in_movie(movies_list, "title", movie_title)
 
     if movie_should_exist and not movie_is_found:
         raise ValueError(f"{colorama.Fore.RED}Movie {movie_title} doesn't exist.")
-    elif not movie_should_exist and movie_is_found:
+    if not movie_should_exist and movie_is_found:
         raise ValueError(f"{colorama.Fore.RED}Movie {movie_title} already exists.")
 
 
@@ -160,14 +162,18 @@ def find_key_in_movie(movies_list, key, value):
     :param value: value which should be found in the movies under the given key
     :return: Flag True if the value was found, index of a movie
     """
-    for index, movie in enumerate(movies_list):
+    for movie in movies_list:
         if value == movie[key]:
             value_is_found = True
-            return value_is_found, index
-    return False, None
+            return value_is_found
+    return False
 
 
 def check_movie_rating_bounds(rating):
+    """
+    Checks if the rating is between 0 and 10
+    :param rating: Rating to be checked
+    """
     if not 0 <= rating <= RATING_MAX:
         raise ValueError(f"{colorama.Fore.RED}The rating should be in the range 0 ... 10.")
 
