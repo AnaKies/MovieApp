@@ -4,6 +4,7 @@ import colorama
 import matplotlib.pyplot as plt
 from rapidfuzz import fuzz
 import movie_storage_sql as storage
+import api_communication as api
 
 
 SIMILARITY_THRESHOLD_PERCENTAGE = 50
@@ -78,22 +79,8 @@ def add_new_movie():
         except (ValueError, TypeError) as error:
             print(f"{colorama.Fore.RED}Error in movie title: {error}")
 
-    while True:
-        try:
-            movie_year = int(input(f"{colorama.Fore.MAGENTA}Enter new movie year: "))
-            break
-        except (ValueError, TypeError) as error:
-            print(f"{colorama.Fore.RED}The year should be a number. {error}")
-
-    while True:
-        try:
-            movie_rating = float(input(f"{colorama.Fore.MAGENTA}Enter new movie rating: "))
-            check_movie_rating_bounds(movie_rating)
-            break
-        except (ValueError, TypeError) as error:
-            print(f"{colorama.Fore.RED}The rating should be a decimal number. {error}")
-
-    storage.add_movie(movie_title, movie_year, movie_rating)
+    title, year, rating = api.get_movie_data_from_api(movie_title)
+    storage.add_movie(title, year, rating)
 
 
 def delete_movie():
