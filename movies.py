@@ -24,8 +24,8 @@ def list_all_movies():
     print(f"{amount_of_movies} movies in total")
 
     for movie in movies_list:
-        name, year, rating = movie.values()
-        print(f"{colorama.Style.BRIGHT}{name} ({year}): {colorama.Fore.CYAN}{rating}")
+        title, year, rating = movie.values()
+        print(f"{colorama.Style.BRIGHT}{title} ({year}): {colorama.Fore.CYAN}{rating}")
 
 
 def filter_movies():
@@ -58,7 +58,7 @@ def filter_movies():
     for movie in movies_list:
         if movie["rating"] >= minimum_rating and start_year <= movie["year"] <= end_year:
             print(f"{colorama.Style.BRIGHT}"
-                  f"{movie['name']} "
+                  f"{movie['title']} "
                   f"({movie['year']}): "
                   f"{colorama.Fore.CYAN}"
                   f"{movie['rating']}")
@@ -70,11 +70,11 @@ def add_new_movie():
     """
     while True:
         try:
-            movie_name = input(f"{colorama.Fore.MAGENTA}Enter new movie name: ")
-            movie_storage.check_movie_name_is_valid(movie_name, movie_should_exist = False)
+            movie_title = input(f"{colorama.Fore.MAGENTA}Enter new movie title: ")
+            check_movie_title_is_valid(movie_title, movie_should_exist = False)
             break
         except (ValueError, TypeError) as error:
-            print(f"{colorama.Fore.RED}Error in movie name: {error}")
+            print(f"{colorama.Fore.RED}Error in movie title: {error}")
 
     while True:
         try:
@@ -91,22 +91,22 @@ def add_new_movie():
         except (ValueError, TypeError) as error:
             print(f"{colorama.Fore.RED}The rating should be a decimal number. {error}")
 
-    storage.add_movie(movie_name, movie_year, movie_rating)
+    storage.add_movie(movie_title, movie_year, movie_rating)
 
 
 def delete_movie():
     """
-    Delete movie from the list by their name.
+    Delete movie from the list by their title.
     """
     while True:
         try:
-            movie_name = input(f"{colorama.Fore.MAGENTA}Enter new movie name: ")
-            movie_storage.check_movie_name_is_valid(movie_name, movie_should_exist = True)
+            movie_title = input(f"{colorama.Fore.MAGENTA}Enter new movie title: ")
+            check_movie_title_is_valid(movie_title, movie_should_exist = True)
             break
         except (ValueError, TypeError) as error:
-            print(f"{colorama.Fore.RED}Error in movie name: {error}")
+            print(f"{colorama.Fore.RED}Error in movie title: {error}")
 
-    storage.delete_movie(movie_name)
+    storage.delete_movie(movie_title)
 
 
 def update_movie_rating():
@@ -115,11 +115,11 @@ def update_movie_rating():
     """
     while True:
         try:
-            movie_name = input(f"{colorama.Fore.MAGENTA}Enter existing movie name: ")
-            movie_storage.check_movie_name_is_valid(movie_name, movie_should_exist = True)
+            movie_title = input(f"{colorama.Fore.MAGENTA}Enter existing movie title: ")
+            check_movie_title_is_valid(movie_title, movie_should_exist = True)
             break
         except (ValueError, TypeError) as error:
-            print(f"{colorama.Fore.RED}Error in movie name: {error}")
+            print(f"{colorama.Fore.RED}Error in movie title: {error}")
 
     while True:
         try:
@@ -129,7 +129,42 @@ def update_movie_rating():
         except ValueError as error:
             print(f"{colorama.Fore.RED}The rating should be a number. {error}")
 
-    storage.update_movie(movie_name, movie_rating)
+    storage.update_movie(movie_title, movie_rating)
+
+
+def check_movie_title_is_valid(movie_title, movie_should_exist):
+    """
+    Checks if a movie exists in the list of movies.
+    :param movie_title: title of the movie to check
+    :param movie_should_exist: if True, the error message appears for not existing movie.
+    If False, the error message appears for existing movie.
+    """
+    if movie_title == "":
+        raise ValueError(f"{colorama.Fore.RED}Empty string for the movie title are not allowed.")
+        return
+
+    movies_list = storage.list_movies()
+    movie_is_found, index = find_key_in_movie(movies_list, "title", movie_title)
+
+    if movie_should_exist and not movie_is_found:
+        raise ValueError(f"{colorama.Fore.RED}Movie {movie_title} doesn't exist.")
+    elif not movie_should_exist and movie_is_found:
+        raise ValueError(f"{colorama.Fore.RED}Movie {movie_title} already exists.")
+
+
+def find_key_in_movie(movies_list, key, value):
+    """
+    Finds if a key with given value is in the  list of movies.
+    :param movies_list: list with movies as dictionaries
+    :param key: key for searching a given value in the movies
+    :param value: value which should be found in the movies under the given key
+    :return: Flag True if the value was found, index of a movie
+    """
+    for index, movie in enumerate(movies_list):
+        if value == movie[key]:
+            value_is_found = True
+            return value_is_found, index
+    return False, None
 
 
 def check_movie_rating_bounds(rating):
@@ -160,8 +195,8 @@ def print_best_and_worst_movie(movies_sorted_by_rating):
     best_movie = movies_sorted_by_rating[0]
     worst_movie = movies_sorted_by_rating[-1]
 
-    print(f"Best movie: {best_movie['name']}, {colorama.Fore.CYAN}{best_movie['rating']}")
-    print(f"Worst movie: {worst_movie['name']}, {colorama.Fore.CYAN}{worst_movie['rating']}")
+    print(f"Best movie: {best_movie['title']}, {colorama.Fore.CYAN}{best_movie['rating']}")
+    print(f"Worst movie: {worst_movie['title']}, {colorama.Fore.CYAN}{worst_movie['rating']}")
 
 
 def get_rating_list(movies_list):
@@ -208,11 +243,11 @@ def generate_random_movie():
     """
     movies_list = storage.list_movies()
     generated_movie = random.choice(movies_list)
-    name = generated_movie["name"]
+    title = generated_movie["title"]
     rating = generated_movie["rating"]
     print(f"Your movie for tonight: "
           f"{colorama.Fore.CYAN}"
-          f"{name}"
+          f"{title}"
           f"{colorama.Fore.RESET}, "
           f"it's rated {rating}")
 
@@ -229,7 +264,7 @@ def search_movie(part_of_title, movies_list):
     # this step is also important, because the leverstein similarity not always
     # overlays with the human feeling of a similarity
     for movie in movies_list:
-        if part_of_title.lower() in movie["name"].lower():
+        if part_of_title.lower() in movie["title"].lower():
             suggestions.append(movie)
 
     return suggestions
@@ -241,11 +276,11 @@ def print_sorted_movies(sorted_movies_list):
     :param sorted_movies_list: movies list sorted by some criteria
     """
     for movie in sorted_movies_list:
-        name = movie["name"]
+        title = movie["title"]
         rating = movie["rating"]
         year = movie["year"]
         print(f"{colorama.Style.BRIGHT}"
-              f"{name} ({year})"
+              f"{title} ({year})"
               f"{colorama.Style.RESET_ALL}: "
               f"{colorama.Fore.CYAN}"
               f"{rating}")
@@ -295,40 +330,6 @@ def sort_movies_by_year():
         print_sorted_movies(sorted_movies_by_rating)
 
 
-def find_key_in_movie(movies_list, key, value):
-    """
-    Finds if a key with given value is in the  list of movies.
-    :param movies_list: list with movies as dictionaries
-    :param key: key for searching a given value in the movies
-    :param value: value which should be found in the movies under the given key
-    :return: Flag True if the value was found, index of a movie
-    """
-    for index, movie in enumerate(movies_list):
-        if value == movie[key]:
-            value_is_found = True
-            return value_is_found, index
-    return False, None
-
-def check_movie_name_is_valid(movie_name, movie_should_exist):
-    """
-    Checks if a movie exists in the list of movies.
-    :param movie_name: name of the movie to check
-    :param movie_should_exist: if True, the error message appears for not existing movie.
-    If False, the error message appears for existing movie.
-    """
-    if movie_name == "":
-        raise ValueError(f"{colorama.Fore.RED}Empty string for the movie title are not allowed.")
-        return
-
-    movies_list = storage.list_movies()
-    movie_is_found, index = find_key_in_movie(movies_list, "name", movie_name)
-
-    if movie_should_exist and not movie_is_found:
-        raise ValueError(f"{colorama.Fore.RED}Movie {movie_name} doesn't exist.")
-    elif not movie_should_exist and movie_is_found:
-        raise ValueError(f"{colorama.Fore.RED}Movie {movie_name} already exists.")
-
-
 def create_histogram():
     """
     Generate a histogram: X movie rating, Y amount of movies with a specific rating.
@@ -343,11 +344,11 @@ def create_histogram():
     plt.xlabel("Rating")
     plt.ylabel("Movies frequency")
     plt.title("Movie Rating Histogram")
-    hist_file_name = input(f"{colorama.Fore.MAGENTA}"
-                           f"Enter file name for saving the histogram (without extension): ")
-    plt.savefig(hist_file_name + ".png")
+    hist_file_title = input(f"{colorama.Fore.MAGENTA}"
+                           f"Enter file title for saving the histogram (without extension): ")
+    plt.savefig(hist_file_title + ".png")
     print(f"{colorama.Fore.MAGENTA}"
-          f"The histogram was saved to the file {hist_file_name}.png")
+          f"The histogram was saved to the file {hist_file_title}.png")
 
 
 def find_movie_or_do_suggestions():
@@ -355,24 +356,24 @@ def find_movie_or_do_suggestions():
     Search an input movie in the given list.
     If no matching, display the suggestions form the movies list.
     """
-    users_movie_input = input(f"{colorama.Fore.MAGENTA}Enter part of movie name: ")
+    users_movie_input = input(f"{colorama.Fore.MAGENTA}Enter part of movie title: ")
     movies_list = storage.list_movies()
 
     # first check if the part of a title is in the movies titles
     suggestions = search_movie(users_movie_input, movies_list)
     if suggestions:
         for suggestion_movie in suggestions:
-            print(f"{colorama.Fore.RED}Did you mean: {suggestion_movie['name']}")
+            print(f"{colorama.Fore.RED}Did you mean: {suggestion_movie['title']}")
         return
 
     # then do the leverstein comparison
     similarity_is_found = False
     for movie in movies_list:
-        similarity_ratio = fuzz.ratio(users_movie_input, movie["name"])
+        similarity_ratio = fuzz.ratio(users_movie_input, movie["title"])
 
         if similarity_ratio > SIMILARITY_THRESHOLD_PERCENTAGE:
             similarity_is_found = True
-            print(f"{colorama.Fore.RED}Did you mean: {movie['name']}")
+            print(f"{colorama.Fore.RED}Did you mean: {movie['title']}")
 
     if not similarity_is_found:
         print(f"{colorama.Fore.RED}No match for {users_movie_input}.")

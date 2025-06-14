@@ -4,9 +4,8 @@ from sqlalchemy import create_engine, text
 DB_URL = "sqlite:///movies.db"
 
 # Create the engine
-# Echo tells SQLAlchemy to print all SQL statements it runs
-# — very helpful for debugging during development.
-engine = create_engine(DB_URL, echo=True)
+# echo=True tells SQLAlchemy to print all SQL statements it runs
+engine = create_engine(DB_URL)
 
 # Create the movies table if it does not exist
 with engine.connect() as conn:
@@ -27,7 +26,7 @@ def list_movies():
         result = connection.execute(text("SELECT title, year, rating FROM movies"))
         movies = result.fetchall()
 
-    return {row[0]: {"year": row[1], "rating": row[2]} for row in movies}
+    return [{"title": row[0], "year": row[1], "rating": row[2]} for row in movies]
 
 def add_movie(title, year, rating):
     """Add a new movie to the database."""
@@ -60,9 +59,8 @@ def update_movie(title, rating):
         try:
             query = """UPDATE movies 
             SET 
-                title = title, 
-                rating = rating
-            WHERE movies.title = :title AND movies.rating = :rating"""
+                rating = :rating
+            WHERE movies.title = :title"""
             connection.execute(text(query),
                                {"title": title, "rating": rating})
             connection.commit()

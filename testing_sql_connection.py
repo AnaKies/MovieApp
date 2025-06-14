@@ -9,7 +9,7 @@ movies = list_movies()
 print(movies)
 
 # Test updating a movie's rating
-update_movie(movie_name, 9.0)
+update_movie(movie_name, 99.0)
 print(list_movies())
 
 # Test deleting a movie
