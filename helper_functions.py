@@ -36,7 +36,7 @@ def find_key_in_movie(movies_list, key, value):
         if value == movie[key]:
             value_is_found = True
             return value_is_found
-            return False
+    return False
 
 
 def sort_movies_by(movies_list, filter_text, reverse_list=True):

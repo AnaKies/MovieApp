@@ -37,7 +37,10 @@ def list_movies():
                                             FROM movies"""))
         movies = result.fetchall()
 
-    return [{"title": row[0], "year": row[1], "rating": row[2], "poster_url": row[3]} for row in movies]
+    return [{"title": row[0],
+             "year": row[1],
+             "rating": row[2],
+             "poster_url": row[3]} for row in movies]
 
 def add_movie(title, year, rating, poster_url):
     """Add a new movie to the database."""

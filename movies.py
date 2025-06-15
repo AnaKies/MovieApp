@@ -12,8 +12,6 @@ import helper_functions as helper
 SIMILARITY_THRESHOLD_PERCENTAGE = 50
 
 
-
-
 def list_all_movies():
     """
     Prints all movies in the list.
@@ -33,9 +31,6 @@ def list_all_movies():
         print(f"{colorama.Style.BRIGHT}{title} ({year}): {colorama.Fore.CYAN}{rating}")
 
 
-
-
-
 def add_new_movie():
     """
     Adds new movie to the list.
@@ -51,9 +46,6 @@ def add_new_movie():
         print(f"{colorama.Fore.RED}Error in movie title: {error}")
     except Exception as error:
         print(f"{colorama.Fore.RED}Error adding movie: {error}")
-
-
-
 
 
 def delete_movie():
@@ -85,7 +77,7 @@ def update_movie_rating():
 
     while True:
         try:
-            user_rating = helper.get_user_rating()
+            user_rating = api.get_user_rating()
             break
         except ValueError as error:
             print(error)

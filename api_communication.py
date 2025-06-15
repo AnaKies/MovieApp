@@ -62,6 +62,13 @@ def get_year(raw_year):
 
 
 def get_rating(multiple_ratings, title):
+    """
+    Get the rating from the JSON formatted response.
+    If there are more than one rating, the user should enter the rating manually.
+    :param multiple_ratings: List of multiple ratings.
+    :param title: Movie title.
+    :return: Single rating as float.
+    """
     if len(multiple_ratings) == 1:
         raw_rating = multiple_ratings[0]['Value']
         user_rating = raw_rating.split('/')[0]
