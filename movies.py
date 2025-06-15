@@ -10,6 +10,8 @@ import api_communication as api
 SIMILARITY_THRESHOLD_PERCENTAGE = 50
 RATING_MAX = 10
 
+
+
 def list_all_movies():
     """
     Prints all movies in the list.
@@ -71,20 +73,38 @@ def add_new_movie():
     """
     Adds new movie to the list.
     """
+    try:
+        movie_title = input(f"{colorama.Fore.MAGENTA}Enter new movie title: ")
+        title, year, ratings, image_url = api.get_movie_data_from_api(movie_title)
+        if not title:
+            raise ValueError(f"Movie title '{movie_title}' is unknown.")
+        check_movie_title_is_in_db(movie_title, movie_should_exist = False)
+        if ratings:
+            print(f"Different sources rate the movie {title} at: ")
+            for source in ratings:
+                print(f"{source['Value']}")
+        user_rating = get_user_rating()
+        storage.add_movie(title, year, user_rating, image_url)
+    except (ValueError, TypeError) as error:
+        print(f"{colorama.Fore.RED}Error in movie title: {error}")
+    except Exception as error:
+        print(f"{colorama.Fore.RED}Error adding movie: {error}")
+
+
+def get_user_rating():
+    """
+    Converts the user rating to float and validates the user's rating.
+    :return:
+    """
     while True:
+        user_rating = input(f"{colorama.Fore.MAGENTA}Enter your rating value: ")
         try:
-            movie_title = input(f"{colorama.Fore.MAGENTA}Enter new movie title: ")
-            title, year, ratings, image_url = api.get_movie_data_from_api(movie_title)
-            check_movie_title_exists(movie_title, movie_should_exist = False)
-            if ratings:
-                print(f"Different sources rate the movie |{title} at: ")
-                for source in ratings:
-                    print(f"{source['Value']}")
-            user_rating = input(f"{colorama.Fore.MAGENTA}Enter your rating value: ")
-            storage.add_movie(title, year, user_rating, image_url)
-            break
-        except (ValueError, TypeError) as error:
-            print(f"{colorama.Fore.RED}Error in movie title: {error}")
+            rating = float(user_rating)
+            if not 0 <= rating <= RATING_MAX:
+                raise ValueError(f"{colorama.Fore.RED}The rating should be in the range 0 ... 10.")
+            return rating
+        except Exception:
+            raise ValueError(f"{colorama.Fore.RED}Rating value must be a number!")
 
 
 def delete_movie():
@@ -94,7 +114,7 @@ def delete_movie():
     while True:
         try:
             movie_title = input(f"{colorama.Fore.MAGENTA}Enter movie title to delete: ")
-            check_movie_title_exists(movie_title, movie_should_exist = True)
+            check_movie_title_is_in_db(movie_title, movie_should_exist = True)
             break
         except (ValueError, TypeError) as error:
             print(f"{colorama.Fore.RED}Error in movie title: {error}")
@@ -109,23 +129,22 @@ def update_movie_rating():
     while True:
         try:
             movie_title = input(f"{colorama.Fore.MAGENTA}Enter existing movie title: ")
-            check_movie_title_exists(movie_title, movie_should_exist = True)
+            check_movie_title_is_in_db(movie_title, movie_should_exist = True)
             break
         except (ValueError, TypeError) as error:
             print(f"{colorama.Fore.RED}Error in movie title: {error}")
 
     while True:
         try:
-            movie_rating = float(input(f"{colorama.Fore.MAGENTA}Enter new movie rating (0-10): "))
-            check_movie_rating_bounds(movie_rating)
+            user_rating = get_user_rating()
             break
         except ValueError as error:
-            print(f"{colorama.Fore.RED}The rating should be a number. {error}")
+            print(error)
 
-    storage.update_movie(movie_title, movie_rating)
+    storage.update_movie(movie_title, user_rating)
 
 
-def check_movie_title_exists(movie_title, movie_should_exist):
+def check_movie_title_is_in_db(movie_title, movie_should_exist):
     """
     Checks if a movie exists in the list of movies.
     :param movie_title: title of the movie to check
@@ -157,15 +176,6 @@ def find_key_in_movie(movies_list, key, value):
             value_is_found = True
             return value_is_found
     return False
-
-
-def check_movie_rating_bounds(rating):
-    """
-    Checks if the rating is between 0 and 10
-    :param rating: Rating to be checked
-    """
-    if not 0 <= rating <= RATING_MAX:
-        raise ValueError(f"{colorama.Fore.RED}The rating should be in the range 0 ... 10.")
 
 
 def calculate_median(values_list):
@@ -433,6 +443,7 @@ def main():
     """
     # Initialise the color module. Automatic reset of a color style in a new line of string.
     colorama.init(autoreset=True)
+    storage.connect_to_sql_db()
 
     print(colorama.Back.MAGENTA + "********** My Movies Database **********\n")
     while True:

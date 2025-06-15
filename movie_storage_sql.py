@@ -7,18 +7,24 @@ DB_URL = "sqlite:///movies.db"
 # echo=True tells SQLAlchemy to print all SQL statements it runs
 engine = create_engine(DB_URL)
 
-# Create the movies table if it does not exist
-with engine.connect() as conn:
-    conn.execute(text("""
-        CREATE TABLE IF NOT EXISTS movies (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT UNIQUE NOT NULL,
-            year INTEGER NOT NULL,
-            rating REAL NOT NULL,
-            poster_url TEXT NOT NULL)
-    """))
-    conn.commit()
-
+def connect_to_sql_db():
+    """
+    Establish connection to the SQL database.
+    """
+    try:
+        # Create the movies table if it does not exist
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS movies (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT UNIQUE NOT NULL,
+                    year INTEGER NOT NULL,
+                    rating REAL NOT NULL,
+                    poster_url TEXT NOT NULL)
+            """))
+            conn.commit()
+    except Exception:
+        raise Exception("Could not connect to SQL database.")
 
 def list_movies():
     """Retrieve all movies from the database."""
