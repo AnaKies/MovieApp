@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from rapidfuzz import fuzz
 import movie_storage_sql as storage
 import api_communication as api
+import html_handler
 
 
 SIMILARITY_THRESHOLD_PERCENTAGE = 50
@@ -26,7 +27,8 @@ def list_all_movies():
     print(f"{amount_of_movies} movies in total")
 
     for movie in movies_list:
-        title, year, rating = movie.values()
+        # _ignore poster_url
+        title, year, rating, _ = movie.values()
         print(f"{colorama.Style.BRIGHT}{title} ({year}): {colorama.Fore.CYAN}{rating}")
 
 
@@ -385,6 +387,21 @@ def find_movie_or_do_suggestions():
         print(f"{colorama.Fore.RED}No match for {users_movie_input}.")
 
 
+def generate_website():
+    """
+    Generate a website from the movies in database.
+    """
+    html_file_name = 'index.html'
+    serialized_movies = html_handler.serialise_all_movies()
+    html_template = html_handler.get_template()
+    template_filled_with_title = html_handler.insert_movie_data_into_html_template(
+        html_template, '__TEMPLATE_TITLE__', 'Movie App of Anastasia')
+    filled_template = html_handler.insert_movie_data_into_html_template(
+        template_filled_with_title, '__TEMPLATE_MOVIE_GRID__', serialized_movies)
+    html_handler.create_html_file(html_file_name, filled_template)
+    print(f"Website {html_file_name} is created.")
+
+
 def display_menu():
     """
     Prints the menu items.
@@ -402,6 +419,7 @@ def display_menu():
 9. Movies sorted by year
 10. Create Rating Histogram
 11. Filter movies
+12. Generate website
     """)
 
 
@@ -428,7 +446,8 @@ def process_menu_choice(menu_cmd):
         sort_movies_by_rating,
         sort_movies_by_year,
         create_histogram,
-        filter_movies
+        filter_movies,
+        generate_website
     ]
 
     if command > len(func_list):
@@ -449,7 +468,7 @@ def main():
     while True:
         display_menu()
         user_choice = input(f"{colorama.Fore.MAGENTA}"
-                            f"Enter choice (1-11): ")
+                            f"Enter choice (1-12): ")
         if user_choice == "0":  # a possibility to stop the infinite loop
             print("Bye!")
             break

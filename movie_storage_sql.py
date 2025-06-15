@@ -29,10 +29,15 @@ def connect_to_sql_db():
 def list_movies():
     """Retrieve all movies from the database."""
     with engine.connect() as connection:
-        result = connection.execute(text("SELECT title, year, rating FROM movies"))
+        result = connection.execute(text("""SELECT 
+                                                title, 
+                                                year, 
+                                                rating, 
+                                                poster_url 
+                                            FROM movies"""))
         movies = result.fetchall()
 
-    return [{"title": row[0], "year": row[1], "rating": row[2]} for row in movies]
+    return [{"title": row[0], "year": row[1], "rating": row[2], "poster_url": row[3]} for row in movies]
 
 def add_movie(title, year, rating, poster_url):
     """Add a new movie to the database."""
