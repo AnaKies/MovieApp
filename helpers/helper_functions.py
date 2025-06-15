@@ -1,8 +1,5 @@
 import colorama
-import movie_storage_sql as storage
-
-
-
+from movie_storage import movie_storage_sql as storage
 
 
 def check_movie_title_is_in_db(movie_title, movie_should_exist):

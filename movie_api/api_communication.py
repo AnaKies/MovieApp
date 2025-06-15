@@ -9,7 +9,7 @@ load_dotenv()
 
 HTTP_CODE_OK = 200
 API_KEY = os.getenv('API_KEY')
-API_URL = 'http://www.omdbapi.com/?'
+API_URL = 'https://www.omdbapi.com/?'
 RATING_MAX = 10
 
 

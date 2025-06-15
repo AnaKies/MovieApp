@@ -1,4 +1,4 @@
-import movie_storage_sql as storage
+from movie_storage import movie_storage_sql as storage
 
 
 def serialize_movie(movie):

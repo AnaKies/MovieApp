@@ -3,11 +3,10 @@ import random
 import colorama
 import matplotlib.pyplot as plt
 from rapidfuzz import fuzz
-import movie_storage_sql as storage
-import api_communication as api
-import html_handler
-import helper_functions as helper
-
+from movie_storage import movie_storage_sql as storage
+from movie_api import api_communication as api
+from movie_html import html_handler
+from helpers import helper_functions as helper
 
 SIMILARITY_THRESHOLD_PERCENTAGE = 50
 
@@ -303,7 +302,7 @@ def main():
     colorama.init(autoreset=True)
     storage.connect_to_sql_db()
 
-    print(colorama.Back.MAGENTA + "********** My Movies Database **********\n")
+    print(f"{colorama.Back.BLUE}{colorama.Fore.WHITE}********** My Movies Database **********\n")
     while True:
         display_menu()
         user_choice = input(f"{colorama.Fore.MAGENTA}"
