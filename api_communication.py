@@ -15,16 +15,10 @@ def get_movie_data_from_api(movie_title):
 
     response = requests.get(url)
     if response.status_code != HTTP_CODE_OK:
-        return None, None, None
+        return None, None, None, None
     response_json = response.json()
-
     title = response_json.get('Title')
     year = response_json.get('Year')
+    image_url = response_json.get('Poster')
     ratings = response_json.get('Ratings')
-    # use the rating data only from the first source "Internet Movie Database"
-    rating_from_internet_movies = ratings[0]['Value']
-    # The "Internet Movie Database" has the original rating in this form "7.6/10"
-    if '/' not in rating_from_internet_movies:
-        return None, None, None
-    formatted_rating = rating_from_internet_movies.split('/')[0]
-    return title, year, formatted_rating
+    return title, year, ratings, image_url

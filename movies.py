@@ -74,13 +74,17 @@ def add_new_movie():
     while True:
         try:
             movie_title = input(f"{colorama.Fore.MAGENTA}Enter new movie title: ")
-            check_movie_title_is_valid(movie_title, movie_should_exist = False)
+            title, year, ratings, image_url = api.get_movie_data_from_api(movie_title)
+            check_movie_title_exists(movie_title, movie_should_exist = False)
+            if ratings:
+                print(f"Different sources rate the movie |{title} at: ")
+                for source in ratings:
+                    print(f"{source['Value']}")
+            user_rating = input(f"{colorama.Fore.MAGENTA}Enter your rating value: ")
+            storage.add_movie(title, year, user_rating, image_url)
             break
         except (ValueError, TypeError) as error:
             print(f"{colorama.Fore.RED}Error in movie title: {error}")
-
-    title, year, rating = api.get_movie_data_from_api(movie_title)
-    storage.add_movie(title, year, rating)
 
 
 def delete_movie():
@@ -89,8 +93,8 @@ def delete_movie():
     """
     while True:
         try:
-            movie_title = input(f"{colorama.Fore.MAGENTA}Enter new movie title: ")
-            check_movie_title_is_valid(movie_title, movie_should_exist = True)
+            movie_title = input(f"{colorama.Fore.MAGENTA}Enter movie title to delete: ")
+            check_movie_title_exists(movie_title, movie_should_exist = True)
             break
         except (ValueError, TypeError) as error:
             print(f"{colorama.Fore.RED}Error in movie title: {error}")
@@ -105,7 +109,7 @@ def update_movie_rating():
     while True:
         try:
             movie_title = input(f"{colorama.Fore.MAGENTA}Enter existing movie title: ")
-            check_movie_title_is_valid(movie_title, movie_should_exist = True)
+            check_movie_title_exists(movie_title, movie_should_exist = True)
             break
         except (ValueError, TypeError) as error:
             print(f"{colorama.Fore.RED}Error in movie title: {error}")
@@ -121,7 +125,7 @@ def update_movie_rating():
     storage.update_movie(movie_title, movie_rating)
 
 
-def check_movie_title_is_valid(movie_title, movie_should_exist):
+def check_movie_title_exists(movie_title, movie_should_exist):
     """
     Checks if a movie exists in the list of movies.
     :param movie_title: title of the movie to check
@@ -132,7 +136,6 @@ def check_movie_title_is_valid(movie_title, movie_should_exist):
         raise ValueError(f"{colorama.Fore.RED}Empty string for the movie title are not allowed.")
 
     movies_list = storage.list_movies()
-    test_type = type(movies_list)
     movie_is_found = find_key_in_movie(movies_list, "title", movie_title)
 
     if movie_should_exist and not movie_is_found:
