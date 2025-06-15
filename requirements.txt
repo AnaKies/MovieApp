@@ -1,0 +1,6 @@
+colorama
+matplotlib
+rapidfuzz
+sqlalchemy
+python-dotenv
+requests

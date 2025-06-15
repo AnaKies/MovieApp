@@ -39,7 +39,7 @@ def get_template():
     Reads the content of the template HTML file.
     :return: Content of the template HTML file.
     """
-    file_name = "_static/index_template.html"
+    file_name = "static/index_template.html"
     try:
         with open(file_name, "r", encoding="utf-8") as html_file:
             html_template = html_file.read()
